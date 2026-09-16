@@ -58,7 +58,7 @@ cp SKILL.md <你的项目>/.claude/skills/ks-deep-claim-audit/
 ## 它背后怎么跑(5 步 SOP)
 
 1. **侦察事实底座**:`gh api`(stars/forks/license/commits)、克隆**只读**审查、查 PyPI/npm/Maven、看 README——先摸清地基再决定派谁。
-2. **派 dynamic Workflow 扇出**:多个 Sonnet agent 按维度并行,各自输出统一 schema(`claim / verdict / evidence / confidence / flag`)。
+2. **按维度并行扇出**:用当前宿主的并行 agent 能力派多路(Claude Code 为 `Workflow` 的 `parallel()`;Codex 为 `collaboration.spawn_agent`),各自输出统一 schema(`claim / verdict / evidence / confidence / flag`)。
 3. **亲自交叉核对载重结论**:最高风险/最反直觉/agent 间矛盾的几条,自己跑源头(不信自报),用实测纠正纸面判断。
 4. **客观综合**:出逐条 verdict 的报告。
 5. **收尾**:存档,必要时排复查提醒。
@@ -77,7 +77,7 @@ cp SKILL.md <你的项目>/.claude/skills/ks-deep-claim-audit/
 - **不信自报**:agent 报的、宣传说的、自己上轮的判断,关键几条亲验源头;错了透明纠正。
 - **只读审查、绝不跑不可信代码**;`curl|bash` 类安装交还用户自己执行。
 - **取不到真值** → 重试/换源/找间接证据 → 仍不行就标 `⚫无法证实`,**绝不软化成"可能/大概率"**塞进主结论。
-- 研究/核对类 agent 用 **Sonnet**,深度综合与判断用 **Opus** 收口(成本纪律)。
+- 研究/核对类 agent 走便宜档、深度综合与判断由主循环收口(Claude Code 为 Sonnet 扇出 + Opus 收口;其他宿主默认继承当前模型,不传 Claude 的模型别名)。
 
 ## 沉淀的真实坑(为什么它比临场更稳)
 
