@@ -8,7 +8,7 @@ description: >-
   值不值得用 / 这个推文可信吗 / 帮我查查这个 GitHub / 这个 benchmark·数据·性能数字成立吗 / 这个声称有没有水分」。
   不触发:① 核查【用户自己写的文章稿】→ article-fact-check;② 开放主题的多源研究报告(非核查特定宣称)→ deep-research;
   ③ 精读理解一篇论文/文章的思想 → deep-reading-analyst。
-  核心动作:先自己侦察事实底座 → 派 Workflow 多 Sonnet agent 按维度扇出 → 亲自交叉核对载重结论 → 客观出逐条 verdict 的 .md 报告。
+  核心动作:先自己侦察事实底座 → 派多个 agent 按维度并行扇出 → 亲自交叉核对载重结论 → 客观出逐条 verdict 的 .md 报告。
   触发词:深度核查、地毯式、毫无遗漏、挖掘洞察、核实验证、是不是真的、是不是夸大、靠谱吗、可信吗、查查这个项目、
   推文核查、X 博主、宣称、尽调、due diligence、fact-check this repo/tool/claim、verify this hype。
 ---
@@ -26,7 +26,7 @@ description: >-
 1. **客观,不 mirror 宣传语气**:不跟博主/用户的兴奋走,不预设真假,呈现平衡,**主动点明"宣传框架在哪带偏你"**。结论可以是"真东西"也可以是"夸大/骗局",由证据定。**下"夸大/虚假"判定前,先 steelman 一遍该声称的最强善意解读——过不了这关再钉,反犬儒、不为踩而踩。**
 2. **证据可追溯到源头**:代码结论带 `文件:行号`;数字/热度带 `命令输出 或 URL+日期`;不用二手看板、不编数。
    **取不到真值 → 三级处理**:① 换路径重试(镜像/替代端点/`gh api` 远端代本地/Wayback `web.archive.org`/archive.today)、记录重试;② 找间接证据(注明"间接推断"+来源可信度);③ 在逐句核查表里以 **`⚫ 无法证实`** 写死,并在"方法与局限"说明取不到的原因与对结论的影响。**绝不**把"无法证实"悄悄软化成"可能/应该/大概率"塞进主结论。
-3. **不信自报**(`agent-team-review`):agent 报的、宣传说的、自己上一轮的判断,**最高风险/最反直觉/agent 间矛盾的那几条,亲自跑源头复核**;矛盾由主循环(Opus)裁决;错了 → **透明纠正,写进报告**。
+3. **不信自报**(`agent-team-review`):agent 报的、宣传说的、自己上一轮的判断,**最高风险/最反直觉/agent 间矛盾的那几条,亲自跑源头复核**;矛盾由主循环裁决;错了 → **透明纠正,写进报告**。
 4. **只读审查、绝不跑不可信代码**:克隆只许 Read/Grep 静态看;**绝不运行**安装/构建/启动脚本(`npm install`/`run`、`docker`、`node`、`python setup`…)。`curl|bash` 类外部安装**不由审查者执行**——把命令原文贴给用户,注明"需你在自己机器上确认后运行,我不代跑"。读源码找风险但不执行,**安全静态速查**:
    ```bash
    grep -rEn 'postinstall|preinstall|prepare' package.json          # 装包即执行钩子
@@ -34,7 +34,9 @@ description: >-
    grep -rEn 'fetch\(|axios|requests\.(get|post)' <repo>/src | grep -vE 'localhost|127\.0'  # 外域请求(查有没有发去作者域)
    grep -rEn 'coinhive|miner|stratum' <repo>/                       # 挖矿
    ```
-5. **成本纪律**(`agent-model-by-complexity`):扇出的检索/取数/核对类 agent 用 `model: 'sonnet'`;深度综合与最终判断由主循环(Opus)收口。**思考强度是会话级,不能 per-agent 设。**
+5. **编排纪律**(`agent-team-collaboration`):只扇出**边界清晰、可独立验收**的检索/取数/核对子任务;深度综合与最终判断由主循环收口。每个子任务的 prompt 都要写清**只读范围、禁止运行不可信代码、证据格式、不得泄露凭据、交付边界**。
+   - **Claude Code**:扇出用 `model: 'sonnet'` 省成本,主循环(Opus)收口。**思考强度是会话级,不能 per-agent 设。**
+   - **Codex 及其他宿主**:默认继承当前模型与推理强度,**不要传 Claude 的 `sonnet`/`opus`/`haiku` 别名**;并发槽不足时分波执行。
 6. **报告存 `.md`**:命名 `<对象>-深度核查报告.md`,存本项目目录。
 
 ---
@@ -52,15 +54,17 @@ description: >-
 - **包真实性**:`curl -s https://pypi.org/pypi/<pkg>/json` / npm / Maven——版本、是否存在、依赖(extra 里藏了什么)。
 - **是文档还是代码**:`language: None` + 体积小 + 全是 .md → 多半是"给 AI 读的 skill/指南/橙皮书",不是能跑的软件(别被"完整系统/数据仓库"框住)。
 - **地理封锁排查**:`curl -I <端点/演示站>` 返回 000/403/超时 → 先区分 geo-block vs 真挂了 vs 不存在(换 `-x 代理` / `--resolve` 测 CDN / `curl -L` 看重定向);找 README/issue 有无替代端点(如 `push2`→`push2delay`)。区分不清就标"网络受限,此项未核实",别直接判"不可用"。
-- **演示站/作者域名安全**:有演示站或关联商业域名时,WebSearch 查 ScamAdviser / Gridinsoft 评分 + `whois` 注册时间(仓库发布后几天才注册 = 红旗)。
+- **演示站/作者域名安全**:有演示站或关联商业域名时,用当前会话的 Web 检索能力(Claude Code 为 `WebSearch`)查 ScamAdviser / Gridinsoft 评分 + `whois` 注册时间(仓库发布后几天才注册 = 红旗)。
 
-### STEP 2 · 派 dynamic Workflow 扇出(Sonnet)
-用 `Workflow` 工具 `parallel()` 派多个 Sonnet agent(本环境无 Workflow 时用 `Agent`/`Task` 并行),每个输出**统一 schema**:
+### STEP 2 · 按维度并行扇出
+用当前宿主的并行 agent 能力派多路,每路输出**统一 schema**:
+- **Claude Code**:`Workflow` 工具的 `parallel()`;无 Workflow 时用 `Agent` 并行。
+- **Codex**:`collaboration.spawn_agent`,按并发槽位分波;需要完整上下文时保留默认 `fork_turns: all`,自包含任务可用 `none`。
 ```json
 {"claim":"<被核查的原话>","verdict":"真实|部分真实·有前提|夸大|虚假·误导|无法证实",
  "evidence":"<文件:行号 / URL+日期 / 命令输出>","confidence":"高|中|低","flag":"<需主循环复核就写原因,否则空>"}
 ```
-> 在 Workflow 脚本里字面量 `Math`+`.random` 会触发确定性检查 → 用变量拼接绕开(`const RND='Math'+'.random'`)。
+> (Claude Code Workflow 专有坑)脚本里字面量 `Math`+`.random` 会触发确定性检查 → 用变量拼接绕开(`const RND='Math'+'.random'`)。
 
 **编队规模(scout 完后定)**:单 repo/单工具/声称≤10 条 → 3-5 路;多仓/多产品/声称>10 条/跨语言市场 → 8-12 路(先用 `agent-team-collaboration` 规划分工防维度重叠);每多一个营销夸大信号(最/第一/快N倍/炸了/省几万/发币)就加一路对应维度。
 
@@ -87,7 +91,7 @@ description: >-
 | 含"发币/ICO/空投" | 作者变现 · 合规法律 · 社媒热度 | 关联域名安全评分 |
 
 ### STEP 3 · 亲自交叉核对载重结论(不信 agent 自报)
-挑出 `flag` 非空、`confidence:低`、或最高风险/最反直觉/agent 间矛盾的 2-5 条,**自己跑源头**:读那段代码、`curl` 那个端点看真回什么、`gh api` 那个数字、WebFetch 那个原帖。用实测纠正纸面判断;自己之前看走眼也当场认、当场改。
+挑出 `flag` 非空、`confidence:低`、或最高风险/最反直觉/agent 间矛盾的 2-5 条,**自己跑源头**:读那段代码、`curl` 那个端点看真回什么、`gh api` 那个数字、用当前会话的网页读取能力(Claude Code 为 `WebFetch`)打开那个原帖。用实测纠正纸面判断;自己之前看走眼也当场认、当场改。
 
 ### STEP 4 · 客观综合,出 .md 报告
 **报告头(必备)**:
@@ -113,8 +117,8 @@ description: >-
 ```
 
 ### STEP 5 · 收尾
-报告路径告诉用户;涉及未落地的后续(等某事件/财报再复查)按需提议 `/schedule`;值得长期记的事实写记忆。
-> **与 agent-team-review 边界**:STEP 3 已内嵌其核心纪律(自跑源头/主循环裁决矛盾/透明纠错),无需显式调用;仅当扇出 ≥6 路或出现两路结论完全相反时,可用 `/agent-team-review` 做专项交叉核对再汇入。
+报告路径告诉用户。涉及未落地的后续(等某事件/财报再复查):**仅当当前宿主确实提供定时任务能力时**才提议(Claude Code 为 `/schedule`),否则给出可复制的人工复查条件,**不假装存在这个能力**。值得长期记的事实按当前宿主的记忆规则处理。
+> **与 agent-team-review 边界**:STEP 3 已内嵌其核心纪律(自跑源头/主循环裁决矛盾/透明纠错),无需显式调用;仅当扇出 ≥6 路或出现两路结论完全相反时,可显式调用 `agent-team-review` 做专项交叉核对再汇入。
 
 ---
 

@@ -1,13 +1,13 @@
 # ks-deep-claim-audit
 
-**网络宣称深度核查 / Deep Claim Audit** — a Claude Code skill.
+**网络宣称深度核查 / Deep Claim Audit** — a skill for Claude Code and Codex.
 
 > 别人在 X/文章里吹一个 GitHub 项目、AI 工具、产品、或某个数据/性能/热度数字。
-> 这个 skill 让 Claude **不附和、不预设**,把每条具体声称对到源头证据,**客观判定是 真实 / 部分真实 / 夸大 / 虚假 / 无法证实**,最后出一份可追溯的 `.md` 核查报告。
+> 这个 skill 让助手 **不附和、不预设**,把每条具体声称对到源头证据,**客观判定是 真实 / 部分真实 / 夸大 / 虚假 / 无法证实**,最后出一份可追溯的 `.md` 核查报告。
 
 不是"夸它"也不是"踩它"——**摘掉宣传滤镜,只让可追溯的证据说话**。
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-orange)
+![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-orange) ![Codex](https://img.shields.io/badge/Codex-compatible-green)
 
 ---
 
@@ -26,15 +26,15 @@
 |---|---|
 | 核查【别人】吹的某个 repo/工具/产品/数据是不是真的 | ✅ **本 skill** |
 | 核查【你自己写的】文章稿有没有事实错误 | ❌ 用 `article-fact-check` |
-| 想要某个开放主题的多源研究报告 | ❌ 用 `deep-research` |
+| 想要某个开放主题的多源研究报告 | ❌ 用 `deep-research`(Codex 为 `$research`) |
 | 想精读理解一篇论文/文章的思想 | ❌ 用 `deep-reading-analyst` |
 
 ## 安装
 
-把本仓的 `SKILL.md` 放到任一处(Claude Code 自动识别):
+把本仓的 `SKILL.md` 放到宿主能发现的 skills 目录——Claude Code 是 `~/.claude/skills/`,Codex 是 `~/.agents/skills/`,两者自动识别:
 
 ```bash
-# 用户级(所有 session 通用)
+# 用户级(所有 session 通用)。Codex 把下面的 .claude 换成 .agents
 mkdir -p ~/.claude/skills/ks-deep-claim-audit
 curl -fsSL -o ~/.claude/skills/ks-deep-claim-audit/SKILL.md \
   https://raw.githubusercontent.com/KaiSky0823/ks-deep-claim-audit/main/SKILL.md
