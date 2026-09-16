@@ -7,7 +7,7 @@
 
 不是"夸它"也不是"踩它"——**摘掉宣传滤镜,只让可追溯的证据说话**。
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-orange) ![Codex](https://img.shields.io/badge/Codex-compatible-green)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-skill-orange) ![Codex](https://img.shields.io/badge/Codex-compatible-green)
 
 ---
 
@@ -82,10 +82,6 @@ cp SKILL.md <你的项目>/.claude/skills/ks-deep-claim-audit/
 ## 沉淀的真实坑(为什么它比临场更稳)
 
 浅克隆只 1 条 git 历史(commit 史要远端核)· 数据真假(真 API vs 硬编码/随机模拟/僵尸功能)· 基准硬件公平性(GPU 引擎被拿 CPU 跑残)· 自跑基准 vs 独立榜 · "最/第一"门槛因领域过新而极低 · stars:watchers 异常比 · AI 批量代工识别(commit 邮箱全 AI CLI + 残留工作流文件)· 地理封锁端点找替代 · 演示站/域名安全评分 · 远程指令链(`Read <URL> and follow`)· 关联交易/sell-the-news · 概念命名者归属。
-
-## License
-
-[MIT](LICENSE) — 自由使用、复制、修改、分发(含商用),署名欢迎但不强制。
 
 ---
 
